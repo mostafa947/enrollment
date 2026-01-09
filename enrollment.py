@@ -4,7 +4,7 @@ import os        #  عشان نسال النظام عن الملفات
 
 file_name = "students.json"
 
-def loud_data ():
+def load_data ():
     if not os.path.exists(file_name):
         return [] # بيعمل check لو الفايل مش موجود بيبدا ب ليست 
     try:
@@ -17,5 +17,5 @@ def save_data (data):
         json.dump(data, f, indent=4)#بيحول الداتا ل json و يكتبه جوا الملف و يحفظه
         
 def add_student ():
-    data = loud_data
+    data = load_data
     

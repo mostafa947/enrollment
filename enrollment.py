@@ -1,21 +1,40 @@
-import argparse  # مكتبه جهزة عشان فكرة ال CLi argument
-import json      # مكتبة ال json 
-import os        #  عشان نسال النظام عن الملفات
+import argparse
 
-file_name = "students.json"
+courses = ()
+def parser()->argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    sub_parsers = parser.add_subparsers()
 
-def load_data ():
-    if not os.path.exists(file_name):
-        return [] # بيعمل check لو الفايل مش موجود بيبدا ب ليست 
-    try:
-        with open(file_name, 'r') as f:
-            return json.load(f)
-    except json.JSONDecodeError:
-        return []# بيشوف لو الملف موجود بيجيب الداتا الي فيه لو فاضي او فيه eror بيرجع ليست فاضية 
-def save_data (data):
-    with open(file_name, 'w') as f:
-        json.dump(data, f, indent=4)#بيحول الداتا ل json و يكتبه جوا الملف و يحفظه
-        
-def add_student ():
-    data = load_data
+    add_parser = sub_parsers.add_parser('add')
+    add_parser.add_argument('name', nargs= '+', type= name, help= 'the name of the student')
+    add_parser.add_argument('id', nargs= 1, type= id, help= 'the id of the student')
+    #add_parser.set_defaults(func= add_student)
+
+    enroll_parser = sub_parsers.add_parser('enroll')
+    enroll_parser.add_argument('id', type= id, help= 'the id of the student')
+    enroll_parser.add_argument('courses', nargs= '+', choices= courses)
+    #enroll_parser.set_defaults(func= enroll_student)
     
+    display_parser = sub_parsers.add_parser('display')
+    #display_parser.set_defaults(func= display)
+
+    return parser.parse_args() 
+
+
+def name(n: str)->str:
+    if not n.isalpha():
+        raise argparse.ArgumentTypeError('name can\'t have non-alphabetical characters')
+    
+    return n.capitalize()
+
+
+def id(_id: str)->int:
+    try:
+        v = int(_id)
+    except ValueError:
+        raise argparse.ArgumentTypeError('id must be a number')
+    
+    if v <= 0:
+        raise argparse.ArgumentTypeError('id must be a number greater than 0')
+    
+    return v

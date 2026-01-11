@@ -1,7 +1,7 @@
 import argparse
 
 
-courses = ('cs109', 'computer vision')
+courses = ()
 def parser()->argparse.Namespace:
     parser = argparse.ArgumentParser()
     sub_parsers = parser.add_subparsers()
@@ -30,8 +30,18 @@ def parser()->argparse.Namespace:
     #enroll_parser.set_defaults(func= enroll_student)
     
     display_parser = sub_parsers.add_parser('display', help= 'display all student')
-    #display_parser.set_defaults(func= display)
+    display_parser.add_argument(
+        '-c', '--course',
+        type= course,
+        help= f'display the students that are enrolled in a specific course'
+    )
+    display_parser.add_argument(
+        '-s', '--student',
+        type= student,
+        help= 'select a student by id'
+    )
 
+    #display_parser.set_defaults(func= display)
     return parser.parse_args() 
 
 
@@ -48,7 +58,7 @@ def name(n: str)->str:
     return ' '.join([_n.capitalize() for _n in n.split()])
 
 
-def sid(_id: str)->int:
+def sid(_id: str)->str:
     try:
         v = int(_id)
     except ValueError:
@@ -57,7 +67,7 @@ def sid(_id: str)->int:
     if v <= 0:
         raise argparse.ArgumentTypeError('id must be a number greater than 0')
     
-    return v
+    return _id
 
 
 def course(c: str)->str:
@@ -66,3 +76,10 @@ def course(c: str)->str:
     
     return c.lower()
 
+
+def student(s: str)->str:
+    try:
+        s = name(s)
+    except argparse.ArgumentTypeError:
+        s = sid(s)
+    return s

@@ -1,7 +1,8 @@
 import argparse
+import enrollment 
 
+courses = () # رجعتها فاضية زي ما هي كاتبة بالظبط
 
-courses = ('cs109', 'computer vision')
 def parser()->argparse.Namespace:
     parser = argparse.ArgumentParser()
     sub_parsers = parser.add_subparsers()
@@ -11,11 +12,10 @@ def parser()->argparse.Namespace:
         'name', 
         type= name, 
         help= 'the name of the student')
-    add_parser.add_argument(
-        'id', 
-        type= sid, 
-        help= 'the id of the student')
-    #add_parser.set_defaults(func= add_student)
+    
+   
+    
+    add_parser.set_defaults(func=enrollment.add_student)
 
     enroll_parser = sub_parsers.add_parser('enroll')
     enroll_parser.add_argument(
@@ -30,8 +30,18 @@ def parser()->argparse.Namespace:
     #enroll_parser.set_defaults(func= enroll_student)
     
     display_parser = sub_parsers.add_parser('display', help= 'display all student')
-    #display_parser.set_defaults(func= display)
+    display_parser.add_argument(
+        '-c', '--course',
+        type= course,
+        help= f'display the students that are enrolled in a specific course'
+    )
+    display_parser.add_argument(
+        '-s', '--student',
+        type= student,
+        help= 'select a student by id'
+    )
 
+    #display_parser.set_defaults(func= display)
     return parser.parse_args() 
 
 
@@ -48,16 +58,9 @@ def name(n: str)->str:
     return ' '.join([_n.capitalize() for _n in n.split()])
 
 
-def sid(_id: str)->int:
-    try:
-        v = int(_id)
-    except ValueError:
-        raise argparse.ArgumentTypeError('id must be a number')
+def sid(_id: str)->str:
     
-    if v <= 0:
-        raise argparse.ArgumentTypeError('id must be a number greater than 0')
-    
-    return v
+    return _id
 
 
 def course(c: str)->str:
@@ -66,3 +69,18 @@ def course(c: str)->str:
     
     return c.lower()
 
+
+def student(s: str)->str:
+    try:
+        s = name(s)
+    except argparse.ArgumentTypeError:
+        s = sid(s)
+    return s
+
+if __name__ == '__main__':
+    try:
+        args = parser()
+        if hasattr(args, 'func'):
+            args.func(args)
+    except SystemExit:
+        pass

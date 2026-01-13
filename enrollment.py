@@ -1,43 +1,48 @@
-import json      # مكتبة ال json 
-import os        # عشان نسال النظام عن الملفات
-import uuid      # (جديد) مكتبة عشان نعمل ID عشوائي مبيتكررش
+import json      
+import os       
+import uuid  
+import sys    
 
 file_name = "students.json"
-
-def load_data():
+def load_data()->list[dict]:
     if not os.path.exists(file_name):
-        return [] # بيعمل check لو الفايل مش موجود بيبدا ب ليست فاضية
+        return []
+    
     try:
         with open(file_name, 'r') as f:
-            return json.load(f) # Deserialization
-    except json.JSONDecodeError:
-        return [] # لو الملف موجود بس فاضي او فيه error بيرجع ليست فاضية 
+            if not f.read().strip():
+                return []
+            return json.load(f)
+        
+    except json.JSONDecodeError as e:
+        print(f'corrupted JSON in {file_name}')
+        print(f'error at line {e.lineno}, column {e.colno}: {e.msg}')
+        sys.exit(1)
 
-def save_data(data):
-    with open(file_name, 'w') as f: # بيحول الداتا ل json و يكتبه جوا الملف و يحفظه
-        json.dump(data, f, indent=4) # Serialization
+    except OSError as e:
+        print(f'error reading file: {e}')
+        sys.exit(1)
 
-# the logic ;)
-def add_student(args):
+def save_data(data: list[dict]):
+    try:
+        with open(file_name, 'w') as f: 
+            json.dump(data, f, indent= 4)
+    except OSError as e:
+        print(f'error writing file: {e}')
+        sys.exit(1)
+
+
+def add_student(name: str):
     data = load_data()
-    
-    # بنعمل id عشاوئي و بناخد اول 8 حروف بس
     student_id = str(uuid.uuid4())[:8]
-    
-    # الاسم الي جايلنا من البارس جاهز
-    name = args.name
 
-    # 3. نكون شكل الطالب (Dictionary)
     new_student = {
         "id": student_id,
         "name": name,
-        "courses": [] # لسه مسجلش مواد، فبنخليها فاضية
+        "courses": []
     }
-    
-    # 4. نضيف الطالب ونحفظ
-    data.append(new_student) # بنزوده علي الليست
-    save_data(data)          # بنحفظ التعديل في الملف
-    
-   
+    data.append(new_student)
+    save_data(data)
+
     print(f"✅ Added successfully: {name} (ID: {student_id})")
 

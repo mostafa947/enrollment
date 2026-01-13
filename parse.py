@@ -1,9 +1,7 @@
 import argparse
 import enrollment 
 
-courses = () # رجعتها فاضية زي ما هي كاتبة بالظبط
-
-courses = ('cs109', 'computer vision')
+courses = ()
 def parser()->argparse.Namespace:
     parser = argparse.ArgumentParser()
     sub_parsers = parser.add_subparsers()
@@ -13,10 +11,13 @@ def parser()->argparse.Namespace:
         'name', 
         type= name, 
         help= 'the name of the student')
-    
-   
-    
-    add_parser.set_defaults(func=enrollment.add_student)
+    add_parser.add_argument(
+        '-c', '--courses',
+        type= course,
+        nargs= '+',
+        help= 'the courses that the student is taking'
+    )
+    add_parser.set_defaults(func= enrollment.add_student)
 
     enroll_parser = sub_parsers.add_parser('enroll')
     enroll_parser.add_argument(
@@ -41,25 +42,27 @@ def parser()->argparse.Namespace:
         type= student,
         help= 'select a student by id'
     )
-
     #display_parser.set_defaults(func= display)
     return parser.parse_args() 
 
 
 def name(n: str)->str:
+    shortest_name_len = 2
     n = n.strip()
     if not n:
         raise argparse.ArgumentTypeError('the name of the student must be provided')
     
-    non_alpha_chars = filter(lambda c: not c.isalpha(), (c for c in n))
-    for c in non_alpha_chars:
-        if c != '-' and c != ' ':
+    if len(n) < shortest_name_len:
+        raise argparse.ArgumentTypeError(f'the name of the student has to be at least {shortest_name_len} characters long.')
+    
+    for c in n:
+        if not c.isalpha() and c != '-' and c != ' ':
             raise argparse.ArgumentTypeError(f'\'{c}\' is an invalid character in name')
 
     return ' '.join([_n.capitalize() for _n in n.split()])
 
 
-def sid(_id: str)->int:
+def sid(_id: str)->str:
     try:
         v = int(_id)
     except ValueError:
@@ -68,22 +71,15 @@ def sid(_id: str)->int:
     if v <= 0:
         raise argparse.ArgumentTypeError('id must be a number greater than 0')
     
-    return v
+    return _id
 
 
 def course(c: str)->str:
-    if c.lower() not in courses:
+    c = c.lower()
+    if c not in courses:
         raise argparse.ArgumentTypeError(f'unknown course {c}: expected {courses}')
-    
-    return c.lower()
+    return c
 
-
-def student(s: str)->str:
-    try:
-        s = name(s)
-    except argparse.ArgumentTypeError:
-        s = sid(s)
-    return s
 
 def student(s: str)->str:
     try:
@@ -96,6 +92,6 @@ if __name__ == '__main__':
     try:
         args = parser()
         if hasattr(args, 'func'):
-            args.func(args)
+            args.func(args.name)
     except SystemExit:
         pass

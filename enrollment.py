@@ -12,6 +12,7 @@ def load_data()->list[dict]:
         with open(file_name, 'r') as f:
             if not f.read().strip():
                 return []
+            f.seek(0)
             return json.load(f)
         
     except json.JSONDecodeError as e:

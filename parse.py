@@ -12,11 +12,11 @@ def parser()->argparse.Namespace:
         type= name, 
         help= 'the name of the student')
     add_parser.add_argument(
-        '-c', '--courses',
+        '-c', '--courses', 
         type= course,
-        nargs= '+',
-        help= 'the courses that the student is taking'
-    )
+        default= [], 
+        nargs= '+', 
+        help= f'the courses to enroll the student in from {courses}')
     add_parser.set_defaults(func= enrollment.add_student)
 
     enroll_parser = sub_parsers.add_parser('enroll')
@@ -26,7 +26,7 @@ def parser()->argparse.Namespace:
         help= 'the id of the student')
     enroll_parser.add_argument(
         'courses', 
-        type= course, 
+        type= course,
         nargs= '+', 
         help= f'the courses to enroll the student in from {courses}')   
     #enroll_parser.set_defaults(func= enroll_student)
@@ -92,6 +92,6 @@ if __name__ == '__main__':
     try:
         args = parser()
         if hasattr(args, 'func'):
-            args.func(args.name)
+            args.func(args.name, args.courses)
     except SystemExit:
         pass

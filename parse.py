@@ -1,23 +1,18 @@
 import argparse
 import enrollment 
 
-
 courses = ('ml', 'cv', 'ca', 'cn', 'oop')
 
 def parser() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    
-    
     sub_parsers = parser.add_subparsers(dest='command')
 
-    
     add_parser = sub_parsers.add_parser('add')
     add_parser.add_argument(
         'name', 
         type=name, 
         help='the name of the student (Letters only)'
     )
-    
     add_parser.add_argument(
         '-c', '--courses', 
         type=course,
@@ -26,7 +21,6 @@ def parser() -> argparse.Namespace:
         help=f'the courses to enroll the student in from {courses}'
     )
 
-    
     enroll_parser = sub_parsers.add_parser('enroll')
     enroll_parser.add_argument(
         'id', 
@@ -40,12 +34,31 @@ def parser() -> argparse.Namespace:
         help=f'the courses to enroll the student in from {courses}'
     )
     
-    display_parser = sub_parsers.add_parser('display', help='display all student')
-    display_parser.add_argument('-c', '--course', type=course, help='filter by course')
-    display_parser.add_argument('-s', '--student', type=student, help='filter by student id or name')
+    display_parser = sub_parsers.add_parser('display')
+    display_parser.add_argument(
+        '-c', '--course', 
+        type=course, 
+        help='filter by course'
+    )
+    display_parser.add_argument(
+        '-s', '--search', 
+        type=student, 
+        help='search by student id or name'
+    )
+
+    edit_parser = sub_parsers.add_parser('edit')
+    edit_parser.add_argument(
+        'id', 
+        type=sid, 
+        help='student id to edit'
+    )
+    edit_parser.add_argument(
+        'new_name', 
+        type=name, 
+        help='new name for the student'
+    )
 
     return parser.parse_args() 
-
 
 
 def name(n: str) -> str:
@@ -62,8 +75,6 @@ def name(n: str) -> str:
             raise argparse.ArgumentTypeError(f"'{c}' is invalid. Use letters only.")
 
     return ' '.join([_n.capitalize() for _n in n.split()])
-
-
 def sid(_id: str) -> int:
     try:
         v = int(_id)
@@ -84,7 +95,6 @@ def course(c: str) -> str:
 
 def student(s: str) -> str:
     try:
-        
         s = name(s)
     except argparse.ArgumentTypeError:
         try:
@@ -92,5 +102,3 @@ def student(s: str) -> str:
         except ValueError:
              raise argparse.ArgumentTypeError('Value must be a valid Name or ID')
     return s
-
-

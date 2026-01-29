@@ -4,21 +4,23 @@ import sys
 
 def main():
     try:
-        
         args = parser()
         
         if args.command == 'add':
-            
             enrollment.add_student(args.name, args.courses)
             
         elif args.command == 'enroll':
             enrollment.enroll_student(args.id, args.courses)
             
         elif args.command == 'display':
+       
+            enrollment.display_students(args.course, args.search)
             
-            print("Display functionality coming soon...")
+        elif args.command == 'edit':
+            enrollment.edit_student(args.id, args.new_name)
+            
         else:
-            print("Please specify a command: add, enroll, or display")
+            print("Please specify a command: add, enroll, display, or edit")
 
     except SystemExit:
         pass

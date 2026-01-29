@@ -54,3 +54,53 @@ def enroll_student(student_id: int, course_names: list[str]):
     if count > 0:
         session.commit()
         print(f" Successfully enrolled in {count} new course(s).")
+
+
+def display_students(course_name=None, search_term=None):
+    
+    query = session.query(Student)
+
+   
+    if course_name:
+        query = query.join(Student.courses).filter(Course.name == course_name.upper())
+
+    
+    if search_term:
+       
+        if search_term.isdigit():
+            query = query.filter(Student.id == int(search_term))
+        
+        else:
+            query = query.filter(Student.name.ilike(f"%{search_term}%"))
+
+    students = query.all()
+
+    if not students:
+        print("\n No students found matching criteria.")
+        return
+
+    print(f"\n Found {len(students)} student(s):")
+    print("=" * 40)
+    for s in students:
+        c_names = [c.name for c in s.courses]
+        print(f" ID: {s.id}")
+        print(f" Name: {s.name}")
+        print(f" Courses: {', '.join(c_names) if c_names else 'None'}")
+        print("-" * 40)
+
+
+def edit_student(student_id: int, new_name: str = None):
+    
+    student = session.query(Student).filter_by(id=student_id).first()
+    
+    if not student:
+        print(f" Error: Student with ID {student_id} not found.")
+        return
+
+    if new_name:
+        old_name = student.name
+        student.name = new_name
+        session.commit()
+        print(f" Updated Student {student_id}: '{old_name}' ➔ '{new_name}'")
+    else:
+        print(" No changes made.")
